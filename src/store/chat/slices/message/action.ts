@@ -56,6 +56,7 @@ export interface ChatMessageAction {
     topicId?: string,
   ) => SWRResponse<ChatMessage[]>;
   copyMessage: (id: string, content: string) => Promise<void>;
+  exportTableMessage: (id: string, content: string) => Promise<void>;
   refreshMessages: () => Promise<void>;
 
   // =========  ↓ Internal Method ↓  ========== //
@@ -209,6 +210,27 @@ export const chatMessage: StateCreator<
   },
   copyMessage: async (id, content) => {
     await copyToClipboard(content);
+
+    get().internal_traceMessage(id, { eventType: TraceEventType.CopyMessage });
+  },
+  exportTableMessage: async (id, content) => {
+    const blob = new Blob(['\uFEFF', content], {
+      // 添加 BOM 头解决中文乱码
+      type: 'text/csv;charset=utf-8',
+    });
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `table_${Date.now()}.csv`;
+    link.style.display = 'none';
+
+    document.body.append(link);
+    link.click();
+    // 在主流现代浏览器中立即移除是没有问题的，这里稍微考虑一下老浏览器
+    setTimeout(() => {
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    }, 3000); // 3秒延时足够绝大多数场景
 
     get().internal_traceMessage(id, { eventType: TraceEventType.CopyMessage });
   },
