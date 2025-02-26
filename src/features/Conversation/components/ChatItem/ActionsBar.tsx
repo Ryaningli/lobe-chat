@@ -41,6 +41,7 @@ const Actions = memo<ActionsProps>(({ id, inPortalThread }) => {
     ttsMessage,
     delAndRegenerateMessage,
     copyMessage,
+    exportTableMessage,
     openThreadCreator,
     resendThreadMessage,
     delAndResendThreadMessage,
@@ -52,6 +53,7 @@ const Actions = memo<ActionsProps>(({ id, inPortalThread }) => {
     s.ttsMessage,
     s.delAndRegenerateMessage,
     s.copyMessage,
+    s.exportTableMessage,
     s.openThreadCreator,
     s.resendThreadMessage,
     s.delAndResendThreadMessage,
@@ -72,6 +74,11 @@ const Actions = memo<ActionsProps>(({ id, inPortalThread }) => {
         case 'copy': {
           await copyMessage(id, item.content);
           message.success(t('copySuccess', { defaultValue: 'Copy Success' }));
+          break;
+        }
+        case 'exportTable': {
+          await exportTableMessage(id, item.content);
+          message.success('导出成功');
           break;
         }
         case 'branching': {
